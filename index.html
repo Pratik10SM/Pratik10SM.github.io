@@ -21,6 +21,8 @@
     .calc-list { font-size:22px;}
     .calc-step { margin: 12px 0; }
     .final-btn { padding: 12px 26px; background: #1e88e5; color: #fff; border: none; border-radius: 4px; margin: 25px auto 0 auto; display:block; font-size: 18px; cursor:pointer;}
+    .secret { color: #1e88e5; font-weight: bold; font-size: 120%; text-align:center; margin: 24px 0 14px 0;}
+    .eq { color: #388e3c; font-weight: bold; font-size: 120%; text-align:center; margin: 24px 0 0 0;}
     @media (max-width: 600px) { .container, .calc-page { padding: 10px 3px;} }
   </style>
 </head>
@@ -34,7 +36,7 @@
     </div>
     <div class="nums-list" id="numsList"></div>
     <div style="text-align:center;">
-      <button class="btn" id="showCalcBtn" style="display:none;">Show All Calculations</button>
+      <button class="btn" id="showCalcBtn" style="display:none;">Show Surprise</button>
       <button class="btn" id="resetBtn" style="display:none;">Reset</button>
     </div>
   </div>
@@ -100,7 +102,7 @@
         allNumbers.push({who: 'You (1st)', value: num});
         renderNumsList();
         // STEP 1: App's number: "2" + (num-2)
-        let b = `${2}${(num-2)}`;
+        let b = Number(`2${num-2}`);
         allNumbers.push({who: 'App (2nd)', value: b});
         setTimeout(() => renderNumsList(), 400);
         stepMsg.innerHTML = `App's number is <b>${b}</b>.<br>Now, enter your <b>second three-digit number</b>:`;
@@ -153,23 +155,35 @@
     function showCalculationPage() {
       // Get all numbers
       let [A, B, C, D, E, F] = allNumbers.map(x => x.value);
+
+      // Secret trick: A + C + D + E + F = B
+      let sum = Number(A) + Number(C) + Number(D) + Number(E) + Number(F);
+
       let calcHtml = `
       <div class="calc-page">
-        <h2>Calculation Steps</h2>
+        <h2>Surprise!</h2>
+        <div class="secret">Look at this amazing result:</div>
         <div class="calc-list">
-          <div class="calc-step">1. <b>Your 1st number</b> (A): <span class="num-anim">${A}</span></div>
-          <div class="calc-step">2. <b>App's 2nd number</b> (B): "2" + (A - 2) = <span class="num-anim">${B}</span></div>
-          <div class="calc-step">3. <b>Your 3rd number</b> (C): <span class="num-anim">${C}</span></div>
-          <div class="calc-step">4. <b>App's 4th number</b> (D): |999 - C| = <span class="num-anim">${D}</span></div>
-          <div class="calc-step">5. <b>Your 5th number</b> (E): <span class="num-anim">${E}</span></div>
-          <div class="calc-step">6. <b>App's 6th number</b> (F): |999 - E| = <span class="num-anim">${F}</span></div>
+          <div class="calc-step">Your 1st number (A): <span class="num-anim">${A}</span></div>
+          <div class="calc-step">App's 2nd number (B): <span class="num-anim">${B}</span></div>
+          <div class="calc-step">Your 3rd number (C): <span class="num-anim">${C}</span></div>
+          <div class="calc-step">App's 4th number (D): <span class="num-anim">${D}</span></div>
+          <div class="calc-step">Your 5th number (E): <span class="num-anim">${E}</span></div>
+          <div class="calc-step">App's 6th number (F): <span class="num-anim">${F}</span></div>
+        </div>
+        <div class="eq">
+          <span>${A} + ${C} + ${D} + ${E} + ${F} = ${sum}</span>
+          <br>
+          <span>App's number (B): <b>${B}</b></span>
+          <br>
+          <span style="color:#d81b60;">${sum === Number(B) ? '🎉 The sum matches perfectly! 🎉' : 'Something went wrong! Try again.'}</span>
         </div>
         <button class="final-btn" onclick="window.close()">Close</button>
       </div>
       `;
       let win = window.open("", "_blank");
       win.document.write(`
-        <html><head><title>Calculation Steps</title>
+        <html><head><title>Surprise!</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <style>
           body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; }
