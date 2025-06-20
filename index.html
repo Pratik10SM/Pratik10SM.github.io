@@ -33,7 +33,7 @@
       Click "Start Trick" to begin.<br><br>
       <strong>Instructions:</strong>
       <ul>
-        <li>Your <b>first number</b> should be a <b>three-digit number</b> whose <b>first digit is not 0 or 1</b>.</li>
+        <li>Your <b>first number</b> should be a <b>three-digit number</b> (can start with 0 or 1) whose <b>unit digit is not 0 or 1</b>.</li>
         <li>All <b>subsequent numbers</b> you enter should also be <b>three-digit numbers</b>.</li>
       </ul>
     </div>
@@ -85,7 +85,7 @@
         'Click "Start Trick" to begin.<br><br>' +
         '<strong>Instructions:</strong>' +
         '<ul>' +
-        '<li>Your <b>first number</b> should be a <b>three-digit number</b> whose <b>first digit is not 0 or 1</b>.</li>' +
+        '<li>Your <b>first number</b> should be a <b>three-digit number</b> (can start with 0 or 1) whose <b>unit digit is not 0 or 1</b>.</li>' +
         '<li>All <b>subsequent numbers</b> you enter should also be <b>three-digit numbers</b>.</li>' +
         '</ul>'
       );
@@ -154,7 +154,7 @@
       win.document.close();
     }
 
-    // Bot's number logic: keep absolute value, and ensure unit digit is NOT 0 or 1, and stays in 3-digit range
+    // Bot's number logic: keep absolute value, ensure unit digit is NOT 0 or 1, and stays in 3-digit range
     function getValidBotNumber(target) {
       let num = Math.abs(target);
 
@@ -180,7 +180,7 @@
       trickNumbers = [];
       turnLabels = [];
       showInstructions(
-        'Enter your <b>first three-digit number</b> (first digit must not be 0 or 1):'
+        'Enter your <b>first three-digit number</b> (can start with 0 or 1 and unit digit must not be 0 or 1):'
       );
       inputRow.style.display = 'block';
       result.innerHTML = '';
@@ -193,15 +193,14 @@
     function handleTrickInput() {
       const val = parseInt(userInput.value, 10);
       // Validation
-      if (isNaN(val) || val < 100 || val > 999) {
-        alert('Please enter a valid three-digit number.');
+      if (isNaN(val) || val < 0 || val > 199) { // 000 to 199 are valid
+        alert('Please enter a valid three-digit number (000-199).');
         return;
       }
-      const firstDigit = Math.floor(val / 100);
       // Step 1: User enters first number
       if (step === 0) {
-        if (firstDigit === 0 || firstDigit === 1) {
-          alert('The first digit must not be 0 or 1. Please enter a valid three-digit number.');
+        if (val % 10 === 0 || val % 10 === 1) {
+          alert('The unit (last) digit must NOT be 0 or 1. Please enter a valid three-digit number.');
           return;
         }
         trickNumbers.push(val);
@@ -217,6 +216,10 @@
       }
       // Step 2: User enters second number
       else if (step === 1) {
+        if (val < 100 || val > 999) {
+          alert('Please enter a valid three-digit number (100-999).');
+          return;
+        }
         trickNumbers.push(val);
         turnLabels.push("You");
         const secondBotNum = getValidBotNumber(MAGIC_NUMBER - trickNumbers.reduce((a, b) => a + b, 0));
@@ -230,6 +233,10 @@
       }
       // Step 3: User enters third number
       else if (step === 2) {
+        if (val < 100 || val > 999) {
+          alert('Please enter a valid three-digit number (100-999).');
+          return;
+        }
         trickNumbers.push(val);
         turnLabels.push("You");
         const sum = trickNumbers.reduce((a, b) => a + b, 0);
