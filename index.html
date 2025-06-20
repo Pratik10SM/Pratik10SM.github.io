@@ -149,10 +149,29 @@
         </body>
         </html>
       `;
-      // Open in a new window/tab
       let win = window.open("", "_blank");
       win.document.write(html);
       win.document.close();
+    }
+
+    // Bot's number logic: keep absolute value, and ensure unit digit is NOT 0 or 1, and stays in 3-digit range
+    function getValidBotNumber(target) {
+      let num = Math.abs(target);
+
+      // Clamp to 3-digit range
+      if (num < 100) num = 100;
+      if (num > 999) num = 999;
+
+      // Adjust to avoid 0 or 1 at unit digit
+      let tries = 0;
+      while ((num % 10 === 0 || num % 10 === 1) && tries < 20) {
+        // Try incrementing, but don't go out of range
+        if (num < 999) num++;
+        else if (num > 100) num--;
+        else num = 102; // fallback
+        tries++;
+      }
+      return num;
     }
 
     // Magic Number Trick Logic
@@ -187,7 +206,7 @@
         }
         trickNumbers.push(val);
         turnLabels.push("You");
-        const firstBotNum = MAGIC_NUMBER - val;
+        const firstBotNum = getValidBotNumber(MAGIC_NUMBER - val);
         trickNumbers.push(firstBotNum);
         turnLabels.push("Bot");
         showInstructions(
@@ -200,7 +219,7 @@
       else if (step === 1) {
         trickNumbers.push(val);
         turnLabels.push("You");
-        const secondBotNum = MAGIC_NUMBER - trickNumbers.reduce((a, b) => a + b, 0);
+        const secondBotNum = getValidBotNumber(MAGIC_NUMBER - trickNumbers.reduce((a, b) => a + b, 0));
         trickNumbers.push(secondBotNum);
         turnLabels.push("Bot");
         showInstructions(
@@ -220,9 +239,7 @@
         );
         showInstructions('Trick Complete! See the calculation below.');
         inputRow.style.display = 'none';
-        // Show numbers after last step
         renderNumbersList();
-        // Open calculation page
         setTimeout(openCalculationPage, 1200);
         return;
       }
@@ -242,4 +259,4 @@
     resetAll();
   </script>
 </body>
-  </html>
+</html>
