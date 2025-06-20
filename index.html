@@ -52,6 +52,14 @@
       z-index: 2;
       overflow: hidden;
     }
+    .instructions {
+      background:#f3f7fa;
+      padding:16px 20px;
+      border-radius:10px;
+      margin-bottom:18px;
+      font-size:17px;
+      color:#17497c;
+    }
     h1 {
       text-align: center;
       color: #1e88e5;
@@ -155,6 +163,13 @@
 <body>
   <div class="container">
     <h1>Magic Number Trick</h1>
+    <div class="instructions">
+      <b>Instructions:</b><br>
+      1. Enter <b>any three-digit number</b> for the first step.<br>
+      &nbsp;&nbsp;&nbsp;Do <b>NOT</b> use a number that ends with <b>0</b> or <b>1</b>.<br>
+      &nbsp;&nbsp;&nbsp;<i>Examples: 237, 582, 496 (allowed); 410, 251 (not allowed)</i><br>
+      2. For all other steps, enter any three-digit number (100–999).
+    </div>
     <div class="step" id="step"></div>
     <div class="inputs">
       <input type="number" id="numberInput" placeholder="Enter number" autocomplete="off" />
@@ -209,9 +224,11 @@
       resultEl.textContent = '';
 
       if(state.step === 1) {
-        stepEl.innerHTML = "Step 1: Enter a <b>3-digit number</b>.<br><span style='font-size:15px;color:#757575;'>But don’t use 0 or 1 as the unit digit!</span>";
+        stepEl.innerHTML = 
+          "Step 1: Enter a <b>three-digit number</b>.<br>" +
+          "<span style='font-size:15px;color:#d32f2f;'><b>Do NOT use a number that ends with 0 or 1 (the unit/last digit must not be 0 or 1).</b></span>";
         numbersList.innerHTML = '';
-        noteEl.textContent = "Example: 257 is OK, 430 is NOT (ends with 0)";
+        noteEl.textContent = "Examples: 237, 582, 496 (allowed); 410, 251 (not allowed)";
       }
       if(state.step === 2) {
         stepEl.innerHTML = "Step 2: Here's your <b>magic answer</b>:<br><b>" + state.answer + "</b><br><span style='font-size:15px;color:#757575;'>Subtract 2 from your number, put 2 in front.</span>";
@@ -279,7 +296,7 @@
     function nextStep(val) {
       if(state.step === 1) {
         if(isNaN(val) || !isThreeDigit(val) || lastDigit(val) === 0 || lastDigit(val) === 1) {
-          alert('Enter a 3-digit number (100-999) that does NOT end with 0 or 1.');
+          alert('Enter a three-digit number (100-999) that does NOT end with 0 or 1.');
           return;
         }
         state.first = val;
@@ -289,7 +306,7 @@
       }
       else if(state.step === 3) {
         if(isNaN(val) || !isThreeDigit(val)) {
-          alert('Please enter a valid 3-digit number (100-999).');
+          alert('Please enter a valid three-digit number (100-999).');
           return;
         }
         state.third = val;
@@ -299,7 +316,7 @@
       }
       else if(state.step === 5) {
         if(isNaN(val) || !isThreeDigit(val)) {
-          alert('Please enter a valid 3-digit number (100-999).');
+          alert('Please enter a valid three-digit number (100-999).');
           return;
         }
         state.fifth = val;
@@ -328,4 +345,4 @@
     showStep();
   </script>
 </body>
-</html>
+  </html>
