@@ -78,7 +78,7 @@
       inputRow.style.display = "block";
       numsList.innerHTML = "";
       renderNumsList();
-      stepMsg.innerHTML = "Let's begin! <br> Enter your <b>first three-digit number</b> (unit digit must not be 0 or 1):";
+      stepMsg.innerHTML = "Let's begin! <br> Enter your <b>first three-digit number</b> (must not start with 0 and unit digit must not be 0 or 1):";
     }
 
     // Trick logic
@@ -90,7 +90,7 @@
       // STEP 0: User's first number
       if (step === 0) {
         if (isNaN(num) || num < 100 || num > 999) {
-          alert('First number must be a three-digit number.');
+          alert('First number must be a three-digit number (100–999, cannot start with 0).');
           return;
         }
         if (num % 10 === 0 || num % 10 === 1) {
@@ -111,7 +111,7 @@
       // STEP 1: User's second number (C)
       if (step === 1) {
         if (isNaN(num) || num < 100 || num > 999) {
-          alert('Please enter a three-digit number.');
+          alert('Please enter a three-digit number (100–999).');
           return;
         }
         allNumbers.push({who: 'You (3rd)', value: num});
@@ -128,7 +128,7 @@
       // STEP 2: User's third number (E)
       if (step === 2) {
         if (isNaN(num) || num < 100 || num > 999) {
-          alert('Please enter a three-digit number.');
+          alert('Please enter a three-digit number (100–999).');
           return;
         }
         allNumbers.push({who: 'You (5th)', value: num});
