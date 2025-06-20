@@ -2,182 +2,174 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Magic Number Trick by Pratik Patil</title>
+  <title>Magic Number Trick - Animated</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
-    .container { max-width: 440px; margin: 40px auto; background: #fff; border-radius: 9px; box-shadow: 0 2px 8px #0002; padding: 32px 24px; }
-    h1 { text-align: center; color: #1e88e5; }
-    .btn { padding: 10px 20px; background: #1e88e5; color: #fff; border: none; border-radius: 4px; margin: 6px 4px; cursor: pointer; font-size: 16px; }
-    .btn:disabled { background: #b0bec5; }
-    .input-row { margin: 18px 0 10px; }
-    input[type="number"] { font-size: 18px; padding: 7px 10px; width: 80%; border: 1px solid #ccc; border-radius: 4px;}
-    .result, .instructions { margin: 18px 0; padding: 12px; background: #e3f2fd; border-radius: 4px; min-height: 40px; }
-    .result.success { background: #d0ffdc; color: #389e59; }
-    .result.fail { background: #ffd0d0; color: #c62828; }
-    .fade { animation: fadeIn 0.7s; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f6fb; margin: 0; padding: 0; }
+    .container { max-width: 430px; margin: 50px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px #0002; padding: 30px 20px; }
+    h1 { text-align: center; color: #1e88e5; margin-bottom: 30px; }
+    .step { font-size: 20px; text-align: center; margin-bottom: 18px; min-height: 32px; }
+    .inputs { text-align: center; }
+    input[type="number"] { font-size: 19px; padding: 8px 12px; width: 70%; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; }
+    .btn { padding: 9px 22px; background: #1e88e5; color: #fff; border: none; border-radius: 5px; margin: 7px 0; cursor: pointer; font-size: 17px; }
+    .btn:disabled { background: #b0bec5; cursor: not-allowed; }
+    .numbers-list { margin: 22px auto 0; background: #e3f2fd; border-radius: 8px; padding: 16px 8px; min-height: 65px; width: 90%; transition: background 0.4s; }
+    .numbers-list.animated { animation: pulse 0.6s; }
+    @keyframes pulse { 0% { background: #e3f2fd; } 50% { background: #bbdefb; } 100% { background: #e3f2fd; } }
+    .result { font-size: 23px; color: #43a047; text-align: center; margin: 25px 0 0 0; }
+    .fadein { animation: fadeIn 0.7s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .trick-btns { text-align: center; margin-bottom: 20px; }
-    @media (max-width: 600px) { .container { padding: 12px 4px; } }
+    .reset-btn { margin-top: 28px; display: block; margin-left: auto; margin-right: auto; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Magic Number Trick</h1>
-    <div class="trick-btns">
-      <button class="btn" id="trick1Btn">Start Trick 1</button>
-      <button class="btn" id="trick2Btn">Start Trick 2</button>
-      <button class="btn" id="resetBtn" style="display:none;">Reset</button>
-    </div>
-    <div class="instructions" id="instructions">Choose a trick above to begin.</div>
-    <div class="input-row" id="inputRow" style="display:none;">
-      <input type="number" id="userInput" placeholder="Enter number" />
+    <div class="step" id="step"></div>
+    <div class="inputs">
+      <input type="number" id="numberInput" placeholder="Enter number" min="100" max="999" autocomplete="off" />
       <button class="btn" id="submitBtn">Submit</button>
     </div>
+    <div class="numbers-list" id="numbersList"></div>
     <div class="result" id="result"></div>
+    <button class="btn reset-btn" id="resetBtn" style="display:none;">Restart Trick</button>
   </div>
   <script>
-    // State
-    let trick = 0, step = 0;
-    let trick1Numbers = [];
-    let trick2Seed = 0, trick2Numbers = [], trick2Diffs = [];
-
-    const trick1Btn = document.getElementById('trick1Btn');
-    const trick2Btn = document.getElementById('trick2Btn');
-    const resetBtn = document.getElementById('resetBtn');
-    const instructions = document.getElementById('instructions');
-    const inputRow = document.getElementById('inputRow');
-    const userInput = document.getElementById('userInput');
+    const stepEl = document.getElementById('step');
+    const numberInput = document.getElementById('numberInput');
     const submitBtn = document.getElementById('submitBtn');
-    const result = document.getElementById('result');
+    const numbersList = document.getElementById('numbersList');
+    const resultEl = document.getElementById('result');
+    const resetBtn = document.getElementById('resetBtn');
 
-    function showInstructions(text) {
-      instructions.innerHTML = text;
-      instructions.classList.add('fade');
-      setTimeout(() => instructions.classList.remove('fade'), 650);
-    }
-
-    function showResult(text, status) {
-      result.innerHTML = text;
-      result.className = 'result fade' + (status ? ' success' : ' fail');
-      setTimeout(() => result.classList.remove('fade'), 650);
-    }
-
-    function resetAll() {
-      trick = 0; step = 0;
-      trick1Numbers = [];
-      trick2Seed = 0; trick2Numbers = []; trick2Diffs = [];
-      userInput.value = '';
-      userInput.disabled = false;
-      inputRow.style.display = 'none';
-      submitBtn.disabled = false;
-      showInstructions('Choose a trick above to begin.');
-      result.innerHTML = '';
-      resetBtn.style.display = 'none';
-      trick1Btn.disabled = false;
-      trick2Btn.disabled = false;
-    }
-
-    // Trick 1 Logic
-    function startTrick1() {
-      trick = 1; step = 0;
-      trick1Numbers = [];
-      showInstructions("Trick 1: Enter your first number:");
-      inputRow.style.display = 'block';
-      result.innerHTML = '';
-      userInput.value = '';
-      resetBtn.style.display = '';
-      trick1Btn.disabled = true; trick2Btn.disabled = true;
-    }
-    function handleTrick1Input() {
-      const val = parseInt(userInput.value, 10);
-      if (isNaN(val)) { alert('Please enter a valid number.'); return; }
-      if (step === 0 || step === 2 || step === 4) {
-        trick1Numbers.push(val);
-        step++;
-        if (step === 1) {
-          const firstBotNum = 2571 - val;
-          trick1Numbers.push(firstBotNum);
-          showInstructions(`Bot enters: ${firstBotNum}<br>Now, enter your second number:`);
-          userInput.value = '';
-          step++;
-        } else if (step === 3) {
-          const secondBotNum = 2571 - trick1Numbers.reduce((a,b)=>a+b,0);
-          trick1Numbers.push(secondBotNum);
-          showInstructions(`Bot enters: ${secondBotNum}<br>Now, enter your third and final number:`);
-          userInput.value = '';
-          step++;
-        } else if (step === 5) {
-          const sum = trick1Numbers.reduce((a,b)=>a+b,0);
-          showResult(
-            `Numbers: ${trick1Numbers.join(', ')}<br>Sum: ${sum}<br>Prediction: 2571<br>${sum === 2571 ? '✅ Magic!' : '❌ Try again!'}`,
-            sum === 2571
-          );
-          showInstructions('Trick Complete!');
-          inputRow.style.display = 'none';
-        }
-      }
-      userInput.value = '';
-    }
-
-    // Trick 2 Logic
-    function startTrick2() {
-      trick = 2; step = 0;
-      trick2Seed = 0; trick2Numbers = []; trick2Diffs = [];
-      showInstructions("Trick 2: Enter a 3-digit number:");
-      inputRow.style.display = 'block';
-      result.innerHTML = '';
-      userInput.value = '';
-      resetBtn.style.display = '';
-      trick1Btn.disabled = true; trick2Btn.disabled = true;
-    }
-    function handleTrick2Input() {
-      const val = parseInt(userInput.value, 10);
-      if (isNaN(val)) { alert('Please enter a valid number.'); return; }
-      if (step === 0) {
-        trick2Seed = val;
-        trick2Numbers.push(val);
-        showInstructions(
-          `Subtract the last digit from your number: ${val} - ${val%10} = ${val - (val%10)}<br>Now, add 2 in front: 2${val - (val%10)}<br>Now, enter your next number:`
-        );
-        userInput.value = '';
-        step++;
-      } else if (step === 1) {
-        trick2Numbers.push(val);
-        const diff1 = Math.abs(999 - val);
-        trick2Diffs.push(diff1);
-        showInstructions(`Subtract your number from 999: 999 - ${val} = ${diff1}<br>Now, enter another number:`);
-        userInput.value = '';
-        step++;
-      } else if (step === 2) {
-        trick2Numbers.push(val);
-        const diff2 = Math.abs(999 - val);
-        trick2Diffs.push(diff2);
-        const total = trick2Seed + trick2Diffs[0] + trick2Numbers[1] + trick2Numbers[2] + trick2Diffs[1];
-        showResult(
-          `Final Numbers: ${trick2Seed}, ${trick2Diffs[0]}, ${trick2Numbers[1]}, ${trick2Numbers[2]}, ${trick2Diffs[1]}<br>Total Sum: ${total}<br>Prediction: 2740<br>${total === 2740 ? "✅ Magic!" : "❌ Try again!"}`,
-          total === 2740
-        );
-        showInstructions("Trick Complete!");
-        inputRow.style.display = 'none';
-      }
-      userInput.value = '';
-    }
-
-    // Event Listeners
-    trick1Btn.onclick = startTrick1;
-    trick2Btn.onclick = startTrick2;
-    resetBtn.onclick = resetAll;
-    submitBtn.onclick = () => {
-      if (trick === 1) handleTrick1Input();
-      else if (trick === 2) handleTrick2Input();
+    // State
+    let state = {
+      step: 1,
+      first: null,
+      answer: null,
+      third: null,
+      fourth: null,
+      fifth: null,
+      sixth: null
     };
-    userInput.addEventListener("keyup", function(event) {
+
+    function animateNumbers() {
+      numbersList.classList.remove('animated');
+      void numbersList.offsetWidth; // reflow
+      numbersList.classList.add('animated');
+    }
+
+    function showStep() {
+      numberInput.value = '';
+      numberInput.type = (state.step === 1) ? 'number' : 'number';
+      numberInput.min = (state.step === 1) ? 100 : undefined;
+      numberInput.max = (state.step === 1) ? 999 : undefined;
+      numberInput.disabled = false;
+      submitBtn.disabled = false;
+      resultEl.textContent = '';
+
+      if(state.step === 1) {
+        stepEl.innerHTML = "Step 1: Enter a <b>3-digit number</b>.";
+        numbersList.innerHTML = '';
+      }
+      if(state.step === 2) {
+        stepEl.innerHTML = "Step 2: Here's the magic answer:<br><b>" + state.answer + "</b><br><span style='font-size:15px;color:#757575;'>Subtract 2 from your number, put 2 in front.</span>";
+        numbersList.innerHTML = `<b>First number:</b> ${state.first}`;
+        animateNumbers();
+        setTimeout(() => {
+          state.step = 3;
+          showStep();
+        }, 1550);
+        numberInput.disabled = true;
+        submitBtn.disabled = true;
+      }
+      if(state.step === 3) {
+        stepEl.innerHTML = "Step 3: Enter a <b>third number</b> (any number).";
+        numbersList.innerHTML = `<b>First number:</b> ${state.first}<br><b>Answer:</b> ${state.answer}`;
+        animateNumbers();
+      }
+      if(state.step === 4) {
+        stepEl.innerHTML = "Calculating the <b>fourth number</b>:<br>999 - " + state.third + " = <b>" + state.fourth + "</b>";
+        numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}`;
+        animateNumbers();
+        setTimeout(() => {
+          state.step = 5;
+          showStep();
+        }, 1700);
+        numberInput.disabled = true;
+        submitBtn.disabled = true;
+      }
+      if(state.step === 5) {
+        stepEl.innerHTML = "Step 5: Enter a <b>fifth number</b> (any number).";
+        numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}`;
+        animateNumbers();
+      }
+      if(state.step === 6) {
+        stepEl.innerHTML = "Calculating the <b>sixth number</b>:<br>999 - " + state.fifth + " = <b>" + state.sixth + "</b>";
+        numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}<br><b>Fifth:</b> ${state.fifth}<br><b>Sixth:</b> ${state.sixth}`;
+        animateNumbers();
+        setTimeout(() => {
+          state.step = 7;
+          showStep();
+        }, 1700);
+        numberInput.disabled = true;
+        submitBtn.disabled = true;
+      }
+      if(state.step === 7) {
+        stepEl.innerHTML = "Adding: <b>First + Third + Fourth + Fifth + Sixth</b>";
+        let sum = state.first + state.third + state.fourth + state.fifth + state.sixth;
+        numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}<br><b>Fifth:</b> ${state.fifth}<br><b>Sixth:</b> ${state.sixth}<br><br><b>Sum:</b> ${sum}`;
+        animateNumbers();
+        setTimeout(() => {
+          resultEl.innerHTML = `<span class="fadein">✨ The answer: <b>${sum}</b> <br>It matches the magic answer: <b>${state.answer}</b>!</span>`;
+          resetBtn.style.display = '';
+          numberInput.disabled = true;
+          submitBtn.disabled = true;
+        }, 1300);
+      }
+    }
+
+    function nextStep(val) {
+      if(state.step === 1) {
+        if(isNaN(val) || val < 100 || val > 999) { alert('Please enter a 3-digit number (100-999).'); return; }
+        state.first = val;
+        state.answer = Number('2' + (val - 2));
+        state.step = 2;
+        showStep();
+      }
+      else if(state.step === 3) {
+        if(isNaN(val)) { alert('Please enter a valid number.'); return; }
+        state.third = val;
+        state.fourth = Math.abs(999 - val);
+        state.step = 4;
+        showStep();
+      }
+      else if(state.step === 5) {
+        if(isNaN(val)) { alert('Please enter a valid number.'); return; }
+        state.fifth = val;
+        state.sixth = Math.abs(999 - val);
+        state.step = 6;
+        showStep();
+      }
+    }
+
+    submitBtn.onclick = () => {
+      let val = parseInt(numberInput.value, 10);
+      nextStep(val);
+    };
+
+    numberInput.addEventListener("keyup", function(event) {
       if (event.key === "Enter") submitBtn.click();
     });
 
-    // Initial State
-    resetAll();
+    resetBtn.onclick = () => {
+      state = { step: 1, first: null, answer: null, third: null, fourth: null, fifth: null, sixth: null };
+      resetBtn.style.display = 'none';
+      showStep();
+    };
+
+    // Start
+    showStep();
   </script>
 </body>
-  </html>
+</html>
