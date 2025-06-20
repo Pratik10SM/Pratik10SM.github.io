@@ -18,6 +18,7 @@
     .fade { animation: fadeIn 0.7s; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .trick-btns { text-align: center; margin-bottom: 20px; }
+    #numbersList { background: #fffbe9; color: #7a5e13; margin: 14px 0 0 0; padding: 10px 12px; border-radius: 4px; font-size: 17px; min-height: 20px; border: 1px solid #ffe082; }
     @media (max-width: 600px) { .container { padding: 12px 4px; } }
   </style>
 </head>
@@ -40,12 +41,16 @@
       <input type="number" id="userInput" placeholder="Enter three-digit number" />
       <button class="btn" id="submitBtn">Submit</button>
     </div>
+    <div id="numbersList"></div>
     <div class="result" id="result"></div>
   </div>
   <script>
     // State
     let step = 0;
     let trickNumbers = [];
+    let turnLabels = []; // To track whose turn for display
+
+    const MAGIC_NUMBER = 2571;
 
     const startTrickBtn = document.getElementById('startTrickBtn');
     const resetBtn = document.getElementById('resetBtn');
@@ -54,6 +59,7 @@
     const userInput = document.getElementById('userInput');
     const submitBtn = document.getElementById('submitBtn');
     const result = document.getElementById('result');
+    const numbersList = document.getElementById('numbersList');
 
     function showInstructions(text) {
       instructions.innerHTML = text;
@@ -70,6 +76,7 @@
     function resetAll() {
       step = 0;
       trickNumbers = [];
+      turnLabels = [];
       userInput.value = '';
       userInput.disabled = false;
       inputRow.style.display = 'none';
@@ -83,19 +90,82 @@
         '</ul>'
       );
       result.innerHTML = '';
+      numbersList.innerHTML = '';
       resetBtn.style.display = 'none';
       startTrickBtn.disabled = false;
     }
 
-    // Magic Number Trick Logic (Corresponds to Trick 1)
+    function renderNumbersList() {
+      if (trickNumbers.length === 0) {
+        numbersList.innerHTML = '';
+        return;
+      }
+      let html = '<b>Numbers so far:</b><br><ul style="margin:8px 0 0 18px;padding:0;">';
+      for (let i = 0; i < trickNumbers.length; i++) {
+        html += `<li>${turnLabels[i]}: <b>${trickNumbers[i]}</b></li>`;
+      }
+      html += '</ul>';
+      numbersList.innerHTML = html;
+    }
+
+    function openCalculationPage() {
+      let html = `
+        <html>
+        <head>
+          <title>Magic Number Calculation</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+            .calculation-box { max-width: 440px; margin: 40px auto; background: #fff; border-radius: 9px; box-shadow: 0 2px 8px #0002; padding: 32px 24px; }
+            h2 { color: #1e88e5; text-align: center; }
+            .magic { background: #d0ffdc; color: #389e59; border-radius: 4px; padding: 14px; margin-top: 28px; font-size: 18px; text-align:center;}
+            ul { font-size: 18px; margin: 15px 0 15px 18px;}
+            .sum { font-size: 19px; color: #c62828; font-weight: bold; margin-top: 12px;}
+            .explain { margin: 22px 0 0 0; color: #444; font-size: 16px; }
+            .btn { padding: 10px 20px; background: #1e88e5; color: #fff; border: none; border-radius: 4px; margin: 22px auto 0 auto; display:block; font-size: 16px; cursor:pointer;}
+          </style>
+        </head>
+        <body>
+          <div class="calculation-box">
+            <h2>Magic Number Calculation</h2>
+            <ul>
+      `;
+      for (let i = 0; i < trickNumbers.length; i++) {
+        html += `<li>${turnLabels[i]}: <b>${trickNumbers[i]}</b></li>`;
+      }
+      let total = trickNumbers.reduce((a, b) => a + b, 0);
+      html += `
+            </ul>
+            <div class="sum">Sum = ${trickNumbers.join(' + ')} = <b>${total}</b></div>
+            <div class="magic">
+              Prediction: <b>${MAGIC_NUMBER}</b><br>
+              ${total === MAGIC_NUMBER ? '🎉 The magic worked! 🎉' : '❌ Try again! ❌'}
+            </div>
+            <div class="explain">
+              <b>How it works:</b> The bot's numbers are always chosen so that the total adds up to ${MAGIC_NUMBER}, no matter what numbers you pick!
+            </div>
+            <button class="btn" onclick="window.close()">Close</button>
+          </div>
+        </body>
+        </html>
+      `;
+      // Open in a new window/tab
+      let win = window.open("", "_blank");
+      win.document.write(html);
+      win.document.close();
+    }
+
+    // Magic Number Trick Logic
     function startTrick() {
       step = 0;
       trickNumbers = [];
+      turnLabels = [];
       showInstructions(
         'Enter your <b>first three-digit number</b> (first digit must not be 0 or 1):'
       );
       inputRow.style.display = 'block';
       result.innerHTML = '';
+      numbersList.innerHTML = '';
       userInput.value = '';
       resetBtn.style.display = '';
       startTrickBtn.disabled = true;
@@ -116,8 +186,10 @@
           return;
         }
         trickNumbers.push(val);
-        const firstBotNum = 2571 - val;
+        turnLabels.push("You");
+        const firstBotNum = MAGIC_NUMBER - val;
         trickNumbers.push(firstBotNum);
+        turnLabels.push("Bot");
         showInstructions(
           `Bot enters: ${firstBotNum}<br>Now, enter your <b>second three-digit number</b>:`
         );
@@ -127,8 +199,10 @@
       // Step 2: User enters second number
       else if (step === 1) {
         trickNumbers.push(val);
-        const secondBotNum = 2571 - trickNumbers.reduce((a, b) => a + b, 0);
+        turnLabels.push("You");
+        const secondBotNum = MAGIC_NUMBER - trickNumbers.reduce((a, b) => a + b, 0);
         trickNumbers.push(secondBotNum);
+        turnLabels.push("Bot");
         showInstructions(
           `Bot enters: ${secondBotNum}<br>Now, enter your <b>third and final three-digit number</b>:`
         );
@@ -138,14 +212,21 @@
       // Step 3: User enters third number
       else if (step === 2) {
         trickNumbers.push(val);
+        turnLabels.push("You");
         const sum = trickNumbers.reduce((a, b) => a + b, 0);
         showResult(
-          `Numbers: ${trickNumbers.join(', ')}<br>Sum: ${sum}<br>Prediction: 2571<br>${sum === 2571 ? '✅ Magic!' : '❌ Try again!'}`,
-          sum === 2571
+          `Numbers: ${trickNumbers.join(', ')}<br>Sum: ${sum}<br>Prediction: ${MAGIC_NUMBER}<br>${sum === MAGIC_NUMBER ? '✅ Magic!' : '❌ Try again!'}`,
+          sum === MAGIC_NUMBER
         );
-        showInstructions('Trick Complete!');
+        showInstructions('Trick Complete! See the calculation below.');
         inputRow.style.display = 'none';
+        // Show numbers after last step
+        renderNumbersList();
+        // Open calculation page
+        setTimeout(openCalculationPage, 1200);
+        return;
       }
+      renderNumbersList();
       userInput.value = '';
     }
 
@@ -161,4 +242,4 @@
     resetAll();
   </script>
 </body>
-</html>
+  </html>
