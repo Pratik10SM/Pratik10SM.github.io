@@ -1,10 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Welcome to Pratik10SM's Website</title>
+  <meta charset="UTF-8">
+  <title>Magic Number Trick by Pratik Patil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 0; }
+    .container { max-width: 440px; margin: 40px auto; background: #fff; border-radius: 9px; box-shadow: 0 2px 8px #0002; padding: 32px 24px; }
+    h1 { text-align: center; color: #1e88e5; }
+    .btn { padding: 10px 20px; background: #1e88e5; color: #fff; border: none; border-radius: 4px; margin: 6px 4px; cursor: pointer; font-size: 16px; }
+    .btn:disabled { background: #b0bec5; }
+    .input-row { margin: 18px 0 10px; }
+    input[type="number"] { font-size: 18px; padding: 7px 10px; width: 80%; border: 1px solid #ccc; border-radius: 4px;}
+    .result, .instructions { margin: 18px 0; padding: 12px; background: #e3f2fd; border-radius: 4px; min-height: 40px; }
+    .result.success { background: #d0ffdc; color: #389e59; }
+    .result.fail { background: #ffd0d0; color: #c62828; }
+    .fade { animation: fadeIn 0.7s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .trick-btns { text-align: center; margin-bottom: 20px; }
+    @media (max-width: 600px) { .container { padding: 12px 4px; } }
+  </style>
 </head>
 <body>
-  <h1>Hello, this is my GitHub Pages website!</h1>
-  <p>Welcome to my personal site.</p>
+  <div class="container">
+    <h1>Magic Number Trick</h1>
+    <div class="trick-btns">
+      <button class="btn" id="trick1Btn">Start Trick 1</button>
+      <button class="btn" id="trick2Btn">Start Trick 2</button>
+      <button class="btn" id="resetBtn" style="display:none;">Reset</button>
+    </div>
+    <div class="instructions" id="instructions">Choose a trick above to begin.</div>
+    <div class="input-row" id="inputRow" style="display:none;">
+      <input type="number" id="userInput" placeholder="Enter number" />
+      <button class="btn" id="submitBtn">Submit</button>
+    </div>
+    <div class="result" id="result"></div>
+  </div>
+  <script>
+    // State
+    let trick = 0, step = 0;
+    let trick1Numbers = [];
+    let trick2Seed = 0, trick2Numbers = [], trick2Diffs = [];
+
+    const trick1Btn = document.getElementById('trick1Btn');
+    const trick2Btn = document.getElementById('trick2Btn');
+    const resetBtn = document.getElementById('resetBtn');
+    const instructions = document.getElementById('instructions');
+    const inputRow = document.getElementById('inputRow');
+    const userInput = document.getElementById('userInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const result = document.getElementById('result');
+
+    function showInstructions(text) {
+      instructions.innerHTML = text;
+      instructions.classList.add('fade');
+      setTimeout(() => instructions.classList.remove('fade'), 650);
+    }
+
+    function showResult(text, status) {
+      result.innerHTML = text;
+      result.className = 'result fade' + (status ? ' success' : ' fail');
+      setTimeout(() => result.classList.remove('fade'), 650);
+    }
+
+    function resetAll() {
+      trick = 0; step = 0;
+      trick1Numbers = [];
+      trick2Seed = 0; trick2Numbers = []; trick2Diffs = [];
+      userInput.value = '';
+      userInput.disabled = false;
+      inputRow.style.display = 'none';
+      submitBtn.disabled = false;
+      showInstructions('Choose a trick above to begin.');
+      result.innerHTML = '';
+      resetBtn.style.display = 'none';
+      trick1Btn.disabled = false;
+      trick2Btn.disabled = false;
+    }
+
+    // Trick 1 Logic
+    function startTrick1() {
+      trick = 1; step = 0;
+      trick1Numbers = [];
+      showInstructions("Trick 1: Enter your first number:");
+      inputRow.style.display = 'block';
+      result.innerHTML = '';
+      userInput.value = '';
+      resetBtn.style.display = '';
+      trick1Btn.disabled = true; trick2Btn.disabled = true;
+    }
+    function handleTrick1Input() {
+      const val = parseInt(userInput.value, 10);
+      if (isNaN(val)) { alert('Please enter a valid number.'); return; }
+      if (step === 0 || step === 2 || step === 4) {
+        trick1Numbers.push(val);
+        step++;
+        if (step === 1) {
+          const firstBotNum = 2571 - val;
+          trick1Numbers.push(firstBotNum);
+          showInstructions(`Bot enters: ${firstBotNum}<br>Now, enter your second number:`);
+          userInput.value = '';
+          step++;
+        } else if (step === 3) {
+          const secondBotNum = 2571 - trick1Numbers.reduce((a,b)=>a+b,0);
+          trick1Numbers.push(secondBotNum);
+          showInstructions(`Bot enters: ${secondBotNum}<br>Now, enter your third and final number:`);
+          userInput.value = '';
+          step++;
+        } else if (step === 5) {
+          const sum = trick1Numbers.reduce((a,b)=>a+b,0);
+          showResult(
+            `Numbers: ${trick1Numbers.join(', ')}<br>Sum: ${sum}<br>Prediction: 2571<br>${sum === 2571 ? '✅ Magic!' : '❌ Try again!'}`,
+            sum === 2571
+          );
+          showInstructions('Trick Complete!');
+          inputRow.style.display = 'none';
+        }
+      }
+      userInput.value = '';
+    }
+
+    // Trick 2 Logic
+    function startTrick2() {
+      trick = 2; step = 0;
+      trick2Seed = 0; trick2Numbers = []; trick2Diffs = [];
+      showInstructions("Trick 2: Enter a 3-digit number:");
+      inputRow.style.display = 'block';
+      result.innerHTML = '';
+      userInput.value = '';
+      resetBtn.style.display = '';
+      trick1Btn.disabled = true; trick2Btn.disabled = true;
+    }
+    function handleTrick2Input() {
+      const val = parseInt(userInput.value, 10);
+      if (isNaN(val)) { alert('Please enter a valid number.'); return; }
+      if (step === 0) {
+        trick2Seed = val;
+        trick2Numbers.push(val);
+        showInstructions(
+          `Subtract the last digit from your number: ${val} - ${val%10} = ${val - (val%10)}<br>Now, add 2 in front: 2${val - (val%10)}<br>Now, enter your next number:`
+        );
+        userInput.value = '';
+        step++;
+      } else if (step === 1) {
+        trick2Numbers.push(val);
+        const diff1 = Math.abs(999 - val);
+        trick2Diffs.push(diff1);
+        showInstructions(`Subtract your number from 999: 999 - ${val} = ${diff1}<br>Now, enter another number:`);
+        userInput.value = '';
+        step++;
+      } else if (step === 2) {
+        trick2Numbers.push(val);
+        const diff2 = Math.abs(999 - val);
+        trick2Diffs.push(diff2);
+        const total = trick2Seed + trick2Diffs[0] + trick2Numbers[1] + trick2Numbers[2] + trick2Diffs[1];
+        showResult(
+          `Final Numbers: ${trick2Seed}, ${trick2Diffs[0]}, ${trick2Numbers[1]}, ${trick2Numbers[2]}, ${trick2Diffs[1]}<br>Total Sum: ${total}<br>Prediction: 2740<br>${total === 2740 ? "✅ Magic!" : "❌ Try again!"}`,
+          total === 2740
+        );
+        showInstructions("Trick Complete!");
+        inputRow.style.display = 'none';
+      }
+      userInput.value = '';
+    }
+
+    // Event Listeners
+    trick1Btn.onclick = startTrick1;
+    trick2Btn.onclick = startTrick2;
+    resetBtn.onclick = resetAll;
+    submitBtn.onclick = () => {
+      if (trick === 1) handleTrick1Input();
+      else if (trick === 2) handleTrick2Input();
+    };
+    userInput.addEventListener("keyup", function(event) {
+      if (event.key === "Enter") submitBtn.click();
+    });
+
+    // Initial State
+    resetAll();
+  </script>
 </body>
-</html>
+  </html>
