@@ -5,21 +5,151 @@
   <title>Magic Number Trick - Animated</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f3f6fb; margin: 0; padding: 0; }
-    .container { max-width: 430px; margin: 50px auto; background: #fff; border-radius: 10px; box-shadow: 0 2px 12px #0002; padding: 30px 20px; }
-    h1 { text-align: center; color: #1e88e5; margin-bottom: 30px; }
-    .step { font-size: 20px; text-align: center; margin-bottom: 18px; min-height: 32px; }
-    .inputs { text-align: center; }
-    input[type="number"] { font-size: 19px; padding: 8px 12px; width: 70%; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; }
-    .btn { padding: 9px 22px; background: #1e88e5; color: #fff; border: none; border-radius: 5px; margin: 7px 0; cursor: pointer; font-size: 17px; }
-    .btn:disabled { background: #b0bec5; cursor: not-allowed; }
-    .numbers-list { margin: 22px auto 0; background: #e3f2fd; border-radius: 8px; padding: 16px 8px; min-height: 65px; width: 90%; transition: background 0.4s; }
-    .numbers-list.animated { animation: pulse 0.6s; }
-    @keyframes pulse { 0% { background: #e3f2fd; } 50% { background: #bbdefb; } 100% { background: #e3f2fd; } }
-    .result { font-size: 23px; color: #43a047; text-align: center; margin: 25px 0 0 0; }
-    .fadein { animation: fadeIn 0.7s; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .reset-btn { margin-top: 28px; display: block; margin-left: auto; margin-right: auto; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: linear-gradient(135deg, #83eaf1 0%, #63a4ff 100%);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      z-index: 0;
+      filter: blur(40px);
+      opacity: 0.4;
+    }
+    body::before {
+      width: 340px; height: 340px;
+      background: #ffb347;
+      left: -160px; top: -120px;
+      animation: move1 14s infinite alternate;
+    }
+    body::after {
+      width: 260px; height: 260px;
+      background: #43e97b;
+      right: -120px; bottom: -80px;
+      animation: move2 16s infinite alternate;
+    }
+    @keyframes move1 {
+      from { top: -120px; left: -160px; }
+      to { top: 40px; left: 50px; }
+    }
+    @keyframes move2 {
+      from { bottom: -80px; right: -120px; }
+      to { bottom: 70px; right: 10px; }
+    }
+    .container {
+      max-width: 450px;
+      margin: 60px auto;
+      background: rgba(255,255,255,0.98);
+      border-radius: 18px;
+      box-shadow: 0 4px 32px #0002;
+      padding: 38px 20px 30px 20px;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+    }
+    h1 {
+      text-align: center;
+      color: #1e88e5;
+      margin-bottom: 30px;
+      letter-spacing: 0.04em;
+      font-size: 2.2em;
+    }
+    .step {
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 18px;
+      min-height: 38px;
+      color: #0d47a1;
+      font-weight: 500;
+    }
+    .inputs {
+      text-align: center;
+    }
+    input[type="number"] {
+      font-size: 19px;
+      padding: 8px 12px;
+      width: 74%;
+      border: 1.5px solid #90caf9;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      outline: none;
+      background: #f1f8ff;
+      transition: border 0.2s;
+    }
+    input[type="number"]:focus {
+      border: 1.5px solid #43a047;
+    }
+    .btn {
+      padding: 10px 28px;
+      background: linear-gradient(90deg,#1e88e5,#43a047 90%);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      margin: 7px 0;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 500;
+      box-shadow: 0 2px 12px #43a04733;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .btn:disabled {
+      background: #b0bec5;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .numbers-list {
+      margin: 28px auto 0;
+      background: linear-gradient(120deg,#e3f2fd 60%,#b2dfdb 100%);
+      border-radius: 13px;
+      padding: 18px 10px;
+      min-height: 70px;
+      width: 93%;
+      transition: background 0.4s;
+      box-shadow: 0 1px 8px #64b5f6aa;
+      font-size: 17.5px;
+    }
+    .numbers-list.animated {
+      animation: pulse 0.6s;
+    }
+    @keyframes pulse {
+      0% { background: linear-gradient(120deg,#e3f2fd,#b2dfdb); }
+      50% { background: linear-gradient(120deg,#bbdefb,#a5d6a7); }
+      100% { background: linear-gradient(120deg,#e3f2fd,#b2dfdb); }
+    }
+    .result {
+      font-size: 24px;
+      color: #43a047;
+      text-align: center;
+      margin: 28px 0 0 0;
+      letter-spacing: 0.03em;
+    }
+    .fadein {
+      animation: fadeIn 0.8s;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .reset-btn {
+      margin-top: 34px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .note {
+      color: #e65100;
+      font-size: 15px;
+      margin-top: 8px;
+      margin-bottom: 0;
+      text-align: center;
+      font-style: italic;
+      letter-spacing: 0.02em;
+    }
   </style>
 </head>
 <body>
@@ -27,8 +157,9 @@
     <h1>Magic Number Trick</h1>
     <div class="step" id="step"></div>
     <div class="inputs">
-      <input type="number" id="numberInput" placeholder="Enter number" min="100" max="999" autocomplete="off" />
+      <input type="number" id="numberInput" placeholder="Enter number" autocomplete="off" />
       <button class="btn" id="submitBtn">Submit</button>
+      <div class="note" id="note"></div>
     </div>
     <div class="numbers-list" id="numbersList"></div>
     <div class="result" id="result"></div>
@@ -41,6 +172,7 @@
     const numbersList = document.getElementById('numbersList');
     const resultEl = document.getElementById('result');
     const resetBtn = document.getElementById('resetBtn');
+    const noteEl = document.getElementById('note');
 
     // State
     let state = {
@@ -59,95 +191,119 @@
       numbersList.classList.add('animated');
     }
 
+    function isThreeDigit(n) {
+      return typeof n === 'number' && n >= 100 && n <= 999;
+    }
+    function lastDigit(n) {
+      return n % 10;
+    }
+
     function showStep() {
       numberInput.value = '';
-      numberInput.type = (state.step === 1) ? 'number' : 'number';
-      numberInput.min = (state.step === 1) ? 100 : undefined;
-      numberInput.max = (state.step === 1) ? 999 : undefined;
+      numberInput.type = 'number';
+      numberInput.min = 100;
+      numberInput.max = 999;
       numberInput.disabled = false;
       submitBtn.disabled = false;
+      noteEl.textContent = '';
       resultEl.textContent = '';
 
       if(state.step === 1) {
-        stepEl.innerHTML = "Step 1: Enter a <b>3-digit number</b>.";
+        stepEl.innerHTML = "Step 1: Enter a <b>3-digit number</b>.<br><span style='font-size:15px;color:#757575;'>But don’t use 0 or 1 as the unit digit!</span>";
         numbersList.innerHTML = '';
+        noteEl.textContent = "Example: 257 is OK, 430 is NOT (ends with 0)";
       }
       if(state.step === 2) {
-        stepEl.innerHTML = "Step 2: Here's the magic answer:<br><b>" + state.answer + "</b><br><span style='font-size:15px;color:#757575;'>Subtract 2 from your number, put 2 in front.</span>";
+        stepEl.innerHTML = "Step 2: Here's your <b>magic answer</b>:<br><b>" + state.answer + "</b><br><span style='font-size:15px;color:#757575;'>Subtract 2 from your number, put 2 in front.</span>";
         numbersList.innerHTML = `<b>First number:</b> ${state.first}`;
+        noteEl.textContent = '';
         animateNumbers();
         setTimeout(() => {
           state.step = 3;
           showStep();
-        }, 1550);
+        }, 1500);
         numberInput.disabled = true;
         submitBtn.disabled = true;
       }
       if(state.step === 3) {
-        stepEl.innerHTML = "Step 3: Enter a <b>third number</b> (any number).";
+        stepEl.innerHTML = "Step 3: Enter a <b>three-digit number</b> (your third number).";
         numbersList.innerHTML = `<b>First number:</b> ${state.first}<br><b>Answer:</b> ${state.answer}`;
+        noteEl.textContent = "Any 3-digit number (100-999)";
         animateNumbers();
       }
       if(state.step === 4) {
-        stepEl.innerHTML = "Calculating the <b>fourth number</b>:<br>999 - " + state.third + " = <b>" + state.fourth + "</b>";
+        stepEl.innerHTML = `Step 4: Let's get the <b>fourth number</b>:<br>999 - ${state.third} = <b>${state.fourth}</b>`;
         numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}`;
+        noteEl.textContent = '';
         animateNumbers();
         setTimeout(() => {
           state.step = 5;
           showStep();
-        }, 1700);
+        }, 1600);
         numberInput.disabled = true;
         submitBtn.disabled = true;
       }
       if(state.step === 5) {
-        stepEl.innerHTML = "Step 5: Enter a <b>fifth number</b> (any number).";
+        stepEl.innerHTML = "Step 5: Enter a <b>three-digit number</b> (your fifth number).";
         numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}`;
+        noteEl.textContent = "Any 3-digit number (100-999)";
         animateNumbers();
       }
       if(state.step === 6) {
-        stepEl.innerHTML = "Calculating the <b>sixth number</b>:<br>999 - " + state.fifth + " = <b>" + state.sixth + "</b>";
+        stepEl.innerHTML = `Step 6: Let's get the <b>sixth number</b>:<br>999 - ${state.fifth} = <b>${state.sixth}</b>`;
         numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}<br><b>Fifth:</b> ${state.fifth}<br><b>Sixth:</b> ${state.sixth}`;
+        noteEl.textContent = '';
         animateNumbers();
         setTimeout(() => {
           state.step = 7;
           showStep();
-        }, 1700);
+        }, 1600);
         numberInput.disabled = true;
         submitBtn.disabled = true;
       }
       if(state.step === 7) {
-        stepEl.innerHTML = "Adding: <b>First + Third + Fourth + Fifth + Sixth</b>";
+        stepEl.innerHTML = "Final Step: Add them up!<br><b>First + Third + Fourth + Fifth + Sixth</b>";
         let sum = state.first + state.third + state.fourth + state.fifth + state.sixth;
         numbersList.innerHTML = `<b>First:</b> ${state.first}<br><b>Answer:</b> ${state.answer}<br><b>Third:</b> ${state.third}<br><b>Fourth:</b> ${state.fourth}<br><b>Fifth:</b> ${state.fifth}<br><b>Sixth:</b> ${state.sixth}<br><br><b>Sum:</b> ${sum}`;
+        noteEl.textContent = '';
         animateNumbers();
         setTimeout(() => {
           resultEl.innerHTML = `<span class="fadein">✨ The answer: <b>${sum}</b> <br>It matches the magic answer: <b>${state.answer}</b>!</span>`;
           resetBtn.style.display = '';
           numberInput.disabled = true;
           submitBtn.disabled = true;
-        }, 1300);
+        }, 1200);
       }
     }
 
     function nextStep(val) {
       if(state.step === 1) {
-        if(isNaN(val) || val < 100 || val > 999) { alert('Please enter a 3-digit number (100-999).'); return; }
+        if(isNaN(val) || !isThreeDigit(val) || lastDigit(val) === 0 || lastDigit(val) === 1) {
+          alert('Enter a 3-digit number (100-999) that does NOT end with 0 or 1.');
+          return;
+        }
         state.first = val;
         state.answer = Number('2' + (val - 2));
         state.step = 2;
         showStep();
       }
       else if(state.step === 3) {
-        if(isNaN(val)) { alert('Please enter a valid number.'); return; }
+        if(isNaN(val) || !isThreeDigit(val)) {
+          alert('Please enter a valid 3-digit number (100-999).');
+          return;
+        }
         state.third = val;
-        state.fourth = Math.abs(999 - val);
+        state.fourth = 999 - val;
         state.step = 4;
         showStep();
       }
       else if(state.step === 5) {
-        if(isNaN(val)) { alert('Please enter a valid number.'); return; }
+        if(isNaN(val) || !isThreeDigit(val)) {
+          alert('Please enter a valid 3-digit number (100-999).');
+          return;
+        }
         state.fifth = val;
-        state.sixth = Math.abs(999 - val);
+        state.sixth = 999 - val;
         state.step = 6;
         showStep();
       }
